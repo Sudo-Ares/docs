@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagen Rebotando con Obstáculos</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+        #imagen-rebotando {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            animation: rotar 5s linear infinite;
+        }
+        @keyframes rotar {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .obstaculo {
+            position: absolute;
+            font-size: 24px;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <img id="imagen-rebotando" src="/images/cr7.jpeg">
+
+    <script>
+        const img = document.getElementById('imagen-rebotando');
+        let x = 0;
+        let y = 0;
+        let dx = 2;
+        let dy = 2;
+        const obstaculos = [];
+
+        function crearObstaculos(cantidad) {
+            const caracteres = ['★', '♦', '♠', '♣', '♥', '●', '■',];
+            for (let i = 0; i < cantidad; i++) {
+                const obstaculo = document.createElement('div');
+                obstaculo.className = 'obstaculo';
+                obstaculo.textContent = caracteres[Math.floor(Math.random() * caracteres.length)];
+                obstaculo.style.left = Math.random() * (window.innerWidth - 20) + 'px';
+                obstaculo.style.top = Math.random() * (window.innerHeight - 20) + 'px';
+                document.body.appendChild(obstaculo);
+                obstaculos.push(obstaculo);
+            }
+        }
+
+        function colisionConObstaculo(x, y, width, height) {
+            for (let obstaculo of obstaculos) {
+                const rect = obstaculo.getBoundingClientRect();
+                if (x < rect.right && x + width > rect.left &&
+                    y < rect.bottom && y + height > rect.top) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function mover() {
+            const maxX = window.innerWidth - img.width;
+            const maxY = window.innerHeight - img.height;
+
+            let newX = x + dx;
+            let newY = y + dy;
+
+            if (newX < 0 || newX > maxX || colisionConObstaculo(newX, y, img.width, img.height)) {
+                dx = -dx;
+                newX = x;
+            }
+            if (newY < 0 || newY > maxY || colisionConObstaculo(x, newY, img.width, img.height)) {
+                dy = -dy;
+                newY = y;
+            }
+
+            x = newX;
+            y = newY;
+
+            img.style.left = x + 'px';
+            img.style.top = y + 'px';
+
+            requestAnimationFrame(mover);
+        }
+
+        crearObstaculos(10); // Crea 10 obstáculos
+        mover();
+    </script>
+</body>
+</html>
